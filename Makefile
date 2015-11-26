@@ -1,7 +1,11 @@
 NAME = mini_debugger
 
 OBJ = main.o \
-	  mini_debugger.o
+	  mini_debugger.o \
+	  init_debugger.o \
+	  load_symbol.o \
+	  db_run.o \
+	  db_quit.o 
 
 LIB = line_edition/line_edition.a
 

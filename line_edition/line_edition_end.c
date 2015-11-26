@@ -1,7 +1,9 @@
 #include <line_edition2.h>
 
-void	line_editor_end()
+void	line_editor_end(t_edit_line *line)
 {
-	tcsetattr(0, TCSAFLUSH, &(old));
+	t_line	*true_line = (t_line *)line;
+	tcsetattr(0, TCSAFLUSH, &(true_line->old));
 	tputs(tgetstr((char *)"ei", NULL), 1, putonterm);
+	free (true_line);
 }
