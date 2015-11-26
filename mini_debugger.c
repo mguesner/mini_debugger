@@ -3,14 +3,14 @@
 static void		do_command(t_env *e, char *line)
 {
 	unsigned long	i = 0;
-
+	char **args = explode(line);
 	// printf("do_command\n");
 	while(i < ARRAY_SIZE)
 	{
-		// printf("line:%s <?> command:%s\n", line, commands[i].command_name);
-		if (!strcmp(line, commands[i].command_name))
+		// printf("line:%s <?> command:%s\n", args[0], commands[i].command_name);
+		if (!strcmp(args[0], commands[i].command_name))
 		{
-			commands[i].command(e);
+			commands[i].command(e, args);
 			break;
 		}
 		i++;

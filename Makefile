@@ -4,8 +4,11 @@ OBJ = main.o \
 	  mini_debugger.o \
 	  init_debugger.o \
 	  load_symbol.o \
+	  explode.o\
 	  db_run.o \
-	  db_quit.o 
+	  db_quit.o \
+	  db_info.o \
+	  function_info.o
 
 LIB = line_edition/line_edition.a
 

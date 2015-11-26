@@ -74,7 +74,7 @@ void	load_symbol(t_env *e)
 	char *sym_str_tbl;
 	for(int i = 0; i < hdr->e_shnum; i++)
 	{
-		Elf64_Shdr *section = (Elf64_Shdr*)(file_start + off);
+		Elf64_Shdr *section = section_start + i;
 		if (section->sh_type == SHT_STRTAB)
 		{
 			sym_str_tbl = (char *)(file_start + section->sh_offset);
@@ -84,22 +84,21 @@ void	load_symbol(t_env *e)
 			sym = (Elf64_Sym *)(file_start + section->sh_offset);
 			sym_size = section->sh_size;
 		}
-		if (section->sh_type == SHT_RELA)
-		{
-			for(unsigned long idx = 0; idx < section->sh_size / section->sh_entsize; idx++)
-			{
-				Elf64_Rela *reltab = (Elf64_Rela *)(file_start + section->sh_offset) + idx;
-				Elf64_Shdr *target = section_start + section->sh_info;
-				char *addr = (file_start + target->sh_offset);
-				int *ref = (int *)(addr + reltab->r_offset);
+		// if (section->sh_type == SHT_RELA)
+		// {
+		// 	for(unsigned long idx = 0; idx < section->sh_size / section->sh_entsize; idx++)
+		// 	{
+		// 		Elf64_Rela *reltab = (Elf64_Rela *)(file_start + section->sh_offset) + idx;
+		// 		Elf64_Shdr *target = section_start + section->sh_info;
+		// 		char *addr = (file_start + target->sh_offset);
+		// 		int *ref = (int *)(addr + reltab->r_offset);
 
-				Elf64_Shdr *target2 = section_start + section->sh_link;
+		// 		Elf64_Shdr *target2 = section_start + section->sh_link;
 
-				printf("%p, %p\n", addr, ref);
-				printf("off -> %lx, section -> %d, section -> %d\n", reltab->r_offset, section->sh_info, section->sh_link);
-			}
-		}
-		off += sizeof(Elf64_Shdr);
+		// 		printf("%p, %p\n", addr, ref);
+		// 		printf("off -> %lx, section -> %d, section -> %d\n", reltab->r_offset, section->sh_info, section->sh_link);
+		// 	}
+		// }
 	}
 	Elf64_Sym *curr_sym = sym;
 	e->sym_tab = malloc(sym_size / sizeof(Elf64_Sym) * sizeof(t_sym));
@@ -118,10 +117,10 @@ void	load_symbol(t_env *e)
 	}
 	e->size_sym_tab = i;
 	sort_array(e->sym_tab, 0, e->size_sym_tab);
-	// i = 0;
-	// while (i < e->size_sym_tab)
-	// {
-	// 	printf("Name: %s, Addr: 0x%lx\n", e->sym_tab[i].name , e->sym_tab[i].addr );
-	// 	i++;
-	// }
+	i = 0;
+	while (i < e->size_sym_tab)
+	{
+		printf("Name: %s, Addr: 0x%lx\n", e->sym_tab[i].name , e->sym_tab[i].addr );
+		i++;
+	}
 }
