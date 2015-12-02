@@ -3,6 +3,8 @@
 static void		do_command(t_env *e, char *line)
 {
 	unsigned long	i = 0;
+	if (!*line)
+		return; 
 	char **args = explode(line);
 	// printf("do_command\n");
 	while(i < ARRAY_SIZE)
@@ -15,6 +17,13 @@ static void		do_command(t_env *e, char *line)
 		}
 		i++;
 	}
+	i = 0;
+	while(args[i])
+	{
+		free(args[i]);
+		i++;
+	}
+	free(args);
 }
 
 static void		db_exit()

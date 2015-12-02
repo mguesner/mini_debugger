@@ -3,7 +3,9 @@ NAME = line_edition.a
 OBJ = putonterm.o \
 	  line_edition_init.o \
 	  line_edition_end.o \
-	  line_edition_getline.o
+	  line_edition_getline.o \
+	  line_edition_pause.o \
+	  line_edition_cont.o
 
 CC = clang -g -O3 -Wall -Wextra -Werror -I include
 

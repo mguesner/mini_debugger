@@ -18,12 +18,8 @@ static void		do_command_info(t_env *e, char **args)
 
 void	db_info(t_env *e, char **args)
 {
-	(void)e;
-	(void)args;
 	if (args[1])
-	{
 		do_command_info(e, args);
-	}
 	else
 	{
 		printf("List of info subcommands:\n\n\

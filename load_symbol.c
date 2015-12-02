@@ -18,23 +18,29 @@ static void	swap(t_sym *tab1, t_sym *tab2)
 
 static void	sort_array(t_sym *array, int begin, int end)
 {
-	if (end > begin) {
-      long pivot = (array + begin)->addr;
-      int l = begin + 1;
-      int r = end;
-      while(l < r) {
-         if ((array + l)->addr <= pivot)
-            l += 1;
-         else if ((array + r)->addr > pivot)
-            r -= 1;
-         else if ( l < r )
-            swap(array+l, array+r);
-      }
-      l -= 1;
-      swap(array+begin, array+l);
-      sort_array(array, begin, l);
-      sort_array(array, r, end);
-   }
+	if (end <= begin)
+		return;
+	long pivot = (array + begin)->addr;
+	
+	int l = begin;
+	int r = end;
+	while (1) 
+	{
+		if (l < end && (array + l)->addr < pivot)
+			l++;
+		else if (r >= begin && (array + r)->addr > pivot)
+			r--;
+		else if (l < r)
+		{
+			swap(array + l, array + r);
+			l++;
+			r--;
+		}
+		else
+			break;
+	}
+	sort_array(array, begin, r);
+	sort_array(array, r + 1, end);
 }
 
 static int	elf_check(Elf64_Ehdr *hdr)
@@ -69,9 +75,12 @@ void	load_symbol(t_env *e)
 	}
 	int off = hdr->e_shoff;
 	Elf64_Shdr *section_start = (Elf64_Shdr*)(file_start + off);
+	char *strtab = file_start + (section_start + hdr->e_shstrndx)->sh_offset;
 	Elf64_Sym *sym ;
+	t_sym *reloc_array;
 	int sym_size;
 	char *sym_str_tbl;
+	unsigned long size;
 	for(int i = 0; i < hdr->e_shnum; i++)
 	{
 		Elf64_Shdr *section = section_start + i;
@@ -79,25 +88,38 @@ void	load_symbol(t_env *e)
 		{
 			sym_str_tbl = (char *)(file_start + section->sh_offset);
 		}
-		if (section->sh_type == SHT_SYMTAB)
+		else if (section->sh_type == SHT_SYMTAB)
 		{
+			// printf("symtab -> %d\n", i);
 			sym = (Elf64_Sym *)(file_start + section->sh_offset);
 			sym_size = section->sh_size;
 		}
-		// if (section->sh_type == SHT_RELA)
-		// {
-		// 	for(unsigned long idx = 0; idx < section->sh_size / section->sh_entsize; idx++)
-		// 	{
-		// 		Elf64_Rela *reltab = (Elf64_Rela *)(file_start + section->sh_offset) + idx;
-		// 		Elf64_Shdr *target = section_start + section->sh_info;
-		// 		char *addr = (file_start + target->sh_offset);
-		// 		int *ref = (int *)(addr + reltab->r_offset);
+		else if (section->sh_type == SHT_RELA && !strcmp(strtab + section->sh_name, ".rela.plt"))
+		{
+			size = section->sh_size / section->sh_entsize;
+			// printf("%s\n", strtab + section->sh_name);
+			reloc_array = malloc(size * sizeof(t_sym));
+			for(unsigned long idx = 0; idx < size; idx++)
+			{
 
-		// 		Elf64_Shdr *target2 = section_start + section->sh_link;
+				Elf64_Rela *reltab = (Elf64_Rela *)(file_start + section->sh_offset) + idx;
+				Elf64_Shdr *plt_section = section_start + section->sh_info;
+				// char *addr = (file_start + plt_section->sh_offset);
+				// int *ref = (int *)(addr + reltab->r_offset);
 
-		// 		printf("%p, %p\n", addr, ref);
-		// 		printf("off -> %lx, section -> %d, section -> %d\n", reltab->r_offset, section->sh_info, section->sh_link);
-		// 	}
+				Elf64_Shdr *dynsym_section = section_start + section->sh_link;
+				// printf("%p, %p\n", addr, ref);
+				// printf("off -> %lx, info -> %lx, section %d -> %s, section %d -> %s\n", reltab->r_offset, ELF64_R_SYM(reltab->r_info)
+				// 	, section->sh_info ,strtab + plt_section->sh_name
+					// 	, section->sh_link ,strtab + dynsym_section->sh_name);
+				Elf64_Sym *dynsym = (Elf64_Sym *)(file_start + dynsym_section->sh_offset) + ELF64_R_SYM(reltab->r_info);
+				// printf("Name : %s, Addr : %lx\n", sym_str_tbl + dynsym->st_name, dynsym->st_value);
+				reloc_array[idx].addr = plt_section->sh_addr + (ELF64_R_SYM(reltab->r_info) * plt_section->sh_entsize);
+				reloc_array[idx].name = sym_str_tbl + dynsym->st_name;
+			}
+			// for(unsigned long idx = 0; idx < size; idx++)
+			// 	printf("Name: %s, Addr: 0x%lx\n",reloc_array[idx].name ,reloc_array[idx].addr );
+		}
 		// }
 	}
 	Elf64_Sym *curr_sym = sym;
@@ -108,19 +130,32 @@ void	load_symbol(t_env *e)
 		if (ELF64_ST_TYPE(curr_sym->st_info) == STT_FUNC)
 		{
 			e->sym_tab[i].addr = curr_sym->st_value;
-			e->sym_tab[i].name = sym_str_tbl + curr_sym->st_name;
-			printf("Name: %s, Addr: 0x%lx, Bind:%d\n", e->sym_tab[i].name , e->sym_tab[i].addr
-				, curr_sym->st_shndx);
+			e->sym_tab[i].name = strdup(sym_str_tbl + curr_sym->st_name);
+			for(unsigned long idx = 0; idx < size; idx++)
+			{
+				if (!strncmp(sym_str_tbl + curr_sym->st_name, reloc_array[idx].name, strlen(reloc_array[idx].name)))
+				{
+					free(e->sym_tab[i].name);
+					e->sym_tab[i].addr = reloc_array[idx].addr;
+					e->sym_tab[i].name = malloc(strlen(reloc_array[idx].name) + 5);
+					strcpy(e->sym_tab[i].name, reloc_array[idx].name);
+					strcat(e->sym_tab[i].name, "@plt");
+				}
+			}
+			// printf("#%d\tOffset: %x\tName: %s, Addr: 0x%lx, Bind:%d\n", i, (int)curr_sym - (int)file_start
+			// 	, e->sym_tab[i].name , e->sym_tab[i].addr
+			// 	, curr_sym->st_shndx);
 			i++;
 		}
 		curr_sym = curr_sym + 1;
 	}
 	e->size_sym_tab = i;
-	sort_array(e->sym_tab, 0, e->size_sym_tab);
-	i = 0;
-	while (i < e->size_sym_tab)
-	{
-		printf("Name: %s, Addr: 0x%lx\n", e->sym_tab[i].name , e->sym_tab[i].addr );
-		i++;
-	}
+	free(reloc_array);
+	sort_array(e->sym_tab, 0, e->size_sym_tab - 1);
+	// i = 0;
+	// while (i < e->size_sym_tab)
+	// {
+	// 	printf("Name: %s, Addr: 0x%lx\n", e->sym_tab[i].name , e->sym_tab[i].addr );
+	// 	i++;
+	// }
 }

@@ -5,6 +5,7 @@
 #include <term.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef	struct 					s_line
 {
@@ -12,6 +13,7 @@ typedef	struct 					s_line
 	int							err;
 	int							size;
 	int							allocated_size;
+	char						*prompt;
 	struct termios 				old;
 	struct termios				termios_p;
 	int							size_x;

@@ -5,10 +5,20 @@ OBJ = main.o \
 	  init_debugger.o \
 	  load_symbol.o \
 	  explode.o\
+	  wait_event.o \
+	  get_current_sym.o \
+	  delete_node.o \
 	  db_run.o \
 	  db_quit.o \
 	  db_info.o \
-	  function_info.o
+	  db_cont.o \
+	  db_backtrace.o \
+	  db_breakpoint.o \
+	  db_enable.o \
+	  function_info.o \
+	  breakpoint_info.o \
+	  enable_count.o \
+	  enable_breakpoint.o
 
 LIB = line_edition/line_edition.a
 

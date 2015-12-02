@@ -2,6 +2,5 @@
 
 void	init_debugger(t_env *e)
 {
-	e->is_running = 0;
-	e->file_name = NULL;
+	bzero(e, sizeof(t_env));
 }
