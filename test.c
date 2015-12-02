@@ -37,6 +37,7 @@ void prout()
 int main()
 {
 	int i = 5;
+	printf("%d\n", sizeof(long long));
 	while(1)
 		prout();
 }

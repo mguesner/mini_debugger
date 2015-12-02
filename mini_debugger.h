@@ -10,7 +10,7 @@
 #include <sys/user.h>
 #include <sys/wait.h>
 
-#define ARRAY_SIZE 15
+#define ARRAY_SIZE 16
 #define ARRAY_SIZE_INFO 2
 #define ARRAY_SIZE_ENABLE 2
 
@@ -86,6 +86,7 @@ void		db_cont(t_env *e, char **args);
 void		db_backtrace(t_env *e, char **args);
 void		db_break(t_env *e, char **args);
 void		db_enable(t_env *e, char **args);
+void		db_delete(t_env *e, char **args);
 
 //commands info
 extern const t_command commands_info[];

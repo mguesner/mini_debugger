@@ -15,6 +15,7 @@ OBJ = main.o \
 	  db_backtrace.o \
 	  db_breakpoint.o \
 	  db_enable.o \
+	  db_delete.o \
 	  function_info.o \
 	  breakpoint_info.o \
 	  enable_count.o \

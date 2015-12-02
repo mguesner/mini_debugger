@@ -15,7 +15,8 @@ const t_command commands[] = {
 		{"break", db_break},
 		{"tb", db_break},
 		{"tbreak", db_break},
-		{"enable", db_enable}
+		{"enable", db_enable},
+		{"delete", db_delete}
 	};
 
 const t_command commands_info[] = {

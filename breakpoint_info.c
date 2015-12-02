@@ -5,6 +5,11 @@ void	breakpoint_info(t_env *e, char **args)
 	(void)args;
 	printf("Num     Type           Disp Enb Address            What\n");
 	t_node_break *curr = e->lst_break.begin;
+	if (!curr)
+	{
+		printf("No breakpoints or watchpoints.\n");
+		return ;
+	}
 	while (curr)
 	{
 		t_sym_info info = get_current_sym(*e, curr->addr);
