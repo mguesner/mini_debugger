@@ -87,7 +87,6 @@ Start it from the beginning? (y or n) "))
 	e->child = fork();
 	if (e->child < 0)
     {
-        // int error = errno;
         perror("fork");
 		return ;
     }
