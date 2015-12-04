@@ -41,7 +41,8 @@ void		wait_event(t_env *e)
 
 	line_edition_pause(g_line);
 	ptrace(PTRACE_CONT, e->child, 0, WSTOPSIG(e->status) == 5 ? 0 : WSTOPSIG(e->status));
-	waitpid(e->child, &(e->status), 0);
+	if (waitpid(e->child, &(e->status), 0) < 0)
+		perror("waitpid");
 	line_edition_cont(g_line);
 	if (WIFSTOPPED(e->status) && WSTOPSIG(e->status) == SIGTRAP)
 	{

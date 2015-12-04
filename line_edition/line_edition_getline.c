@@ -42,7 +42,6 @@ int		line_edition_get_line(t_edit_line *line)
 	tputs(true_line->prompt, 1, putonterm);
 	while ((ret = read(0, &ch, 4)) > 0)
 	{
-		// printf("\n ch -> %d\n", ch);
 		if (ch == 10)
 		{
 			tputs(tgetstr((char *)"do", NULL), 1, putonterm);

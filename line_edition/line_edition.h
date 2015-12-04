@@ -12,5 +12,6 @@ void			line_edition_pause(t_edit_line *line);
 void			line_edition_cont(t_edit_line *line);
 void			line_editor_end(t_edit_line *line);
 int				line_edition_get_line(t_edit_line *line);
+int				line_edition_getsubline(t_edit_line *line, char *comment);
 
 #endif

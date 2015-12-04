@@ -16,10 +16,15 @@ OBJ = main.o \
 	  db_breakpoint.o \
 	  db_enable.o \
 	  db_delete.o \
+	  db_disable.o \
+	  db_file.o \
 	  function_info.o \
 	  breakpoint_info.o \
+	  address_info.o \
 	  enable_count.o \
-	  enable_breakpoint.o
+	  enable_breakpoint.o \
+	  enable_once.o \
+	  enable_delete.o
 
 LIB = line_edition/line_edition.a
 

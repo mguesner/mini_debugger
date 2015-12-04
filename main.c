@@ -16,17 +16,22 @@ const t_command commands[] = {
 		{"tb", db_break},
 		{"tbreak", db_break},
 		{"enable", db_enable},
-		{"delete", db_delete}
+		{"delete", db_delete},
+		{"disable", db_disable},
+		{"file", db_file}
 	};
 
 const t_command commands_info[] = {
 		{"functions", function_info},
-		{"breakpoint", breakpoint_info}
+		{"breakpoint", breakpoint_info},
+		{"address", address_info}
 	};
 
 const t_command commands_enable[] = {
 		{"count", enable_count},
-		{"breakpoint", enable_breakpoint}
+		{"breakpoint", enable_breakpoint},
+		{"once", enable_once},
+		{"delete", enable_delete}
 	};
 
 int main(int argc, char **argv)

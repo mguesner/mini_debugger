@@ -10,10 +10,9 @@
 #include <sys/user.h>
 #include <sys/wait.h>
 
-#define ARRAY_SIZE 16
-#define ARRAY_SIZE_INFO 2
-#define ARRAY_SIZE_ENABLE 2
-
+#define ARRAY_SIZE 18
+#define ARRAY_SIZE_INFO 3
+#define ARRAY_SIZE_ENABLE 4
 
 typedef struct s_env t_env;
 
@@ -59,6 +58,7 @@ typedef struct					s_lst_break
 struct							s_env
 {
 	char						*file_name;
+	char						**args;
 	int							is_running;
 	int							child;
 	struct user_regs_struct		regs;
@@ -87,16 +87,21 @@ void		db_backtrace(t_env *e, char **args);
 void		db_break(t_env *e, char **args);
 void		db_enable(t_env *e, char **args);
 void		db_delete(t_env *e, char **args);
+void		db_disable(t_env *e, char **args);
+void		db_file(t_env *e, char **args);
 
 //commands info
 extern const t_command commands_info[];
 void		function_info(t_env *e, char **args);
 void		breakpoint_info(t_env *e, char **args);
+void		address_info(t_env *e, char **args);
 
 //commands enable
 extern const t_command commands_enable[];
 void		enable_count(t_env *e, char **args);
 void		enable_breakpoint(t_env *e, char **args);
+void		enable_once(t_env *e, char **args);
+void		enable_delete(t_env *e, char **args);
 
 void		mini_debugger(char **args);
 void		init_debugger(t_env *e);

@@ -50,7 +50,7 @@ static void	do_child(t_env *e, char **args)
 {
 	if (setpgid(0, 0) < 0)
 		perror("pgid");
-	kill(getpid(), SIGSTOP);
+	raise(SIGSTOP);
 	char *pwd = getcwd(NULL, 0);
 	char *name = malloc(strlen(pwd) + strlen(e->file_name) + 2);
 	strcpy(name, pwd);
@@ -69,11 +69,20 @@ void	db_run(t_env *e, char **args)
 {
 	if (e->is_running)
 	{
-		printf("A debugging session is active.\n\
-\n\
-	Inferior 1 [process 36710] will be killed.\n\
-\n\
-Quit anyway? (y or n)\n");
+		while(!line_edition_getsubline(g_line, "The program being debugged has been started already.\n\
+Start it from the beginning? (y or n) "))
+		{
+			if (!strcmp("n", g_line->line))
+				return ;
+			else if (!strcmp("y", g_line->line))
+			{
+				kill(e->child, SIGKILL);
+				waitpid(e->child, &(e->status), 0);
+				break ;
+			}
+			else
+				printf("Please answer y or n.\n");
+		}
 	}
 	e->child = fork();
 	if (e->child < 0)

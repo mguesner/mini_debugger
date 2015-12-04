@@ -6,7 +6,7 @@ static void		do_command_info(t_env *e, char **args)
 	// printf("do_command\n");
 	while(i < ARRAY_SIZE_INFO)
 	{
-		// printf("line:%s <?> command:%s\n", args[0], commands[i].command_name);
+		// printf("line:%s <?> command:%s\n", args[0], commands_info[i].command_name);
 		if (!strcmp(args[1], commands_info[i].command_name))
 		{
 			commands_info[i].command(e, args);
