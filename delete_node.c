@@ -18,8 +18,9 @@ void	delete_node(t_lst_break *lst, t_node_break *node)
 			if (curr == lst->end)
 				lst->end = prev;
 			prev->next = curr->next;
-			free(curr);
 			lst->size--;
+			free(curr);
+			curr = prev->next;
 		}
 	}
 }

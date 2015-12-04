@@ -34,9 +34,14 @@ void prout()
 
 }
 
-int main()
+int main(int argc, char ** argv)
 {
 	int i = 5;
+	while (*argv)
+	{
+		printf("%s\n", *argv);
+		argv++;
+	}
 	printf("%d\n", sizeof(long long));
 	while(1)
 		prout();

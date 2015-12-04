@@ -92,7 +92,8 @@ void		wait_event(t_env *e)
 	}
 	else if (WIFSTOPPED(e->status))
 	{
-		ptrace(PTRACE_GETREGS, e->child, NULL, &e->regs);
+		if (ptrace(PTRACE_GETREGS, e->child, NULL, &e->regs) < 0)
+			perror("ptrace");
 		t_sym_info info = get_current_sym(*e, e->regs.rip);
 		printf("Program received signal %s\n", signaux[WSTOPSIG(e->status)]);
 		printf("0x%.16llx in %s()\n", e->regs.rip, info.name);

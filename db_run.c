@@ -67,7 +67,14 @@ static void	do_child(t_env *e, char **args)
 
 void	db_run(t_env *e, char **args)
 {
-	(void)args;
+	if (e->is_running)
+	{
+		printf("A debugging session is active.\n\
+\n\
+	Inferior 1 [process 36710] will be killed.\n\
+\n\
+Quit anyway? (y or n)\n");
+	}
 	e->child = fork();
 	if (e->child < 0)
     {
