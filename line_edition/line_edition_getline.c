@@ -31,96 +31,95 @@ static inline void	delete_in_line(int pos, t_line *true_line)
 	true_line->size--;
 }
 
+const t_func g_funcs[] = {
+	{4479771, f_left},
+	{4414235, f_right}
+};
+
 int		line_edition_get_line(t_edit_line *line)
 {
 	t_line	*true_line = (t_line *)line;
-	int		pos = 0;
+	true_line->pos = 0;
 	int		ret;
-	int 	ch = 0;
+	int		i;
+	unsigned char 	ch[4];
 	true_line->line[0] = 0;
 	true_line->size = 0;
-	tputs(true_line->prompt, 1, putonterm);
-	while ((ret = read(0, &ch, 4)) > 0)
+	write(1, true_line->prompt, true_line->prompt_size);
+	while ((ret = read(0, ch, 4)) > 0)
 	{
-		if (ch == 10)
+		if (ch[0] == 27)
 		{
-			tputs(tgetstr((char *)"do", NULL), 1, putonterm);
-			tputs(tgetstr((char *)"cr", NULL), 1, putonterm);
-			break;
-		}
-		else if (ch == 127)
-		{
-			if (pos > 0)
+			i = 0;
+			while (i < FUNC_SIZE)
 			{
-				if (true_line->size % true_line->size_x == 0)
+				if (g_funcs[i].func_id == *(int*)ch)
 				{
-					tputs(tgetstr((char *)"up", NULL), 1, putonterm);
-					tputs(tgoto(tgetstr((char *)"RI", NULL), 0, true_line->size_x), 1, putonterm);
+					g_funcs[i].func(true_line);
+					break ;
 				}
-				else
-					tputs(tgetstr((char *)"le", NULL), 1, putonterm);
-				tputs(tgetstr((char *)"cd", NULL), 1, putonterm);
-				pos--;
-				delete_in_line(pos, true_line);
-				tputs(true_line->line + pos, 1, putonterm);
-				int index = true_line->size - pos;
-				while (index > 0)
-				{
-					tputs(tgetstr((char *)"le", NULL), 1, putonterm);
-					index--;
-				}
+				i++;
 			}
+			*(int*)ch = 0;
+			continue ;
 		}
-		else if (ch == 4479771) //LEFT
+		// printf("%d %d %d %d\n", ch[3], ch[2], ch[1], ch[0]);
+		i = 0;
+		while (i < 4 && ch[i])
 		{
-			if (pos > 0)
-			{
-				if (pos % true_line->size_x == 0)
-				{
-					tputs(tgetstr((char *)"up", NULL), 1, putonterm);
-					tputs(tgoto(tgetstr((char *)"RI", NULL), 0, true_line->size_x), 1, putonterm);
-				}
-				else
-					tputs(tgetstr((char *)"le", NULL), 1, putonterm);
-				pos--;
-			}
-		}
-		else if (ch == 4414235) //RIGHT
-		{
-			if (pos < true_line->size)
-			{
-				if (pos % true_line->size_x == 0)
-				{
-					tputs(tgetstr((char *)"do", NULL), 1, putonterm);
-					tputs(tgoto(tgetstr((char *)"LE", NULL), 0, true_line->size_x), 1, putonterm);
-				}
-				else
-					tputs(tgetstr((char *)"nd", NULL), 1, putonterm);
-				pos++;
-			}
-		}
-		else if (ch < 128)
-		{
-			insert_in_line(ch, pos++, true_line);
-			write(1, &ch, 3);
-			tputs(tgetstr((char *)"cd", NULL), 1, putonterm);
-			tputs(true_line->line + pos, 1, putonterm);
-			if (true_line->size % true_line->size_x == 0)
+			if (ch[i] == 10)
 			{
 				tputs(tgetstr((char *)"do", NULL), 1, putonterm);
 				tputs(tgetstr((char *)"cr", NULL), 1, putonterm);
+				return ret < 0 ? ret : 0;
 			}
-			int index = true_line->size - pos;
-			if ((true_line->size - index) / true_line->size_x != true_line->size / true_line->size_x && index != 0)
+			else if (ch[i] == 127)
 			{
-				tputs(tgetstr((char *)"up", NULL), 1, putonterm);
-				tputs(tgoto(tgetstr((char *)"RI", NULL), 0, true_line->size_x - index), 1, putonterm);
+				if (true_line->pos > 0)
+				{
+					if (true_line->size % true_line->size_x == 0)
+					{
+						tputs(tgetstr((char *)"up", NULL), 1, putonterm);
+						tputs(tgoto(tgetstr((char *)"RI", NULL), 0, true_line->size_x), 1, putonterm);
+					}
+					else
+						tputs(tgetstr((char *)"le", NULL), 1, putonterm);
+					tputs(tgetstr((char *)"cd", NULL), 1, putonterm);
+					true_line->pos--;
+					delete_in_line(true_line->pos, true_line);
+					tputs(true_line->line + true_line->pos, 1, putonterm);
+					int index = true_line->size - true_line->pos;
+					while (index > 0)
+					{
+						tputs(tgetstr((char *)"le", NULL), 1, putonterm);
+						index--;
+					}
+				}
 			}
-			else if (index != 0)
-				tputs(tgoto(tgetstr((char *)"LE", NULL), 0, index), 1, putonterm);
+			else if (ch[i] < 128)
+			{
+				insert_in_line(ch[i], true_line->pos++, true_line);
+				write(1, ch + i, 1);
+				tputs(tgetstr((char *)"cd", NULL), 1, putonterm);
+				tputs(true_line->line + true_line->pos, 1, putonterm);
+				if (true_line->size % true_line->size_x == 0)
+				{
+					tputs(tgetstr((char *)"do", NULL), 1, putonterm);
+					tputs(tgetstr((char *)"cr", NULL), 1, putonterm);
+				}
+				int index = true_line->size - true_line->pos;
+				if ((true_line->size - index) / true_line->size_x != true_line->size / true_line->size_x && index != 0)
+				{
+					tputs(tgetstr((char *)"up", NULL), 1, putonterm);
+					tputs(tgoto(tgetstr((char *)"RI", NULL), 0, true_line->size_x - index), 1, putonterm);
+				}
+				else if (index != 0)
+					tputs(tgoto(tgetstr((char *)"LE", NULL), 0, index), 1, putonterm);
+			}
+			i++;
 		}
-		ch = 0;
-		// printf("\n pos:%d\n", pos);
+		*(int*)ch = 0;
+		// printf("\n true_line->pos:%d\n", true_line->pos);
 	}
 	return ret < 0 ? ret : 0;
 }

@@ -1,16 +1,42 @@
-
+#include <execinfo.h>
+#include <stdio.h>
+#include <stdlib.h>
 // void prout()
 // {
 // 	char *caca;
 // 	while(1)
 // 		*caca = 0;
 // }
+void caca()
+{
+	while(1);
+}
+
+void prout()
+{
+		// void *array[10];
+  // size_t size;
+  // char **strings;
+  // size_t i;
+
+  // size = backtrace (array, 10);
+  // strings = backtrace_symbols (array, size);
+
+  // printf ("Obtained %zd stack frames.\n", size);
+
+  // for (i = 0; i < size; i++)
+  //    printf ("%s\n", strings[i]);
+
+  // free (strings);
+  // while (1)
+	caca();
+}
 
 
-// void main()
-// {
-// 	prout();
-// }
+void main()
+{
+	prout();
+}
 
 // #include <stdio.h>
 
@@ -29,23 +55,18 @@
 	
 // }
 
-void prout()
-{
-
-}
-
-int main(int argc, char ** argv)
-{
-	int i = 5;
-	while (*argv)
-	{
-		printf("%s\n", *argv);
-		argv++;
-	}
-	printf("%d\n", sizeof(long long));
-	while(1)
-		prout();
-}
+// int main(int argc, char ** argv)
+// {
+// 	int i = 5;
+// 	while (*argv)
+// 	{
+// 		printf("%s\n", *argv);
+// 		argv++;
+// 	}
+// 	printf("%d\n", sizeof(long long));
+// 	while(1)
+// 		prout();
+// }
 
 // int main()
 // {

@@ -10,6 +10,12 @@ t_sym_info	get_current_sym(t_env e, long addr)
 			break;
 		i++;
 	}
+	if (!i)
+	{
+		ret.addr_off = 0;
+		ret.name = NULL;
+		return ret;
+	}
 	ret.addr_off = addr - e.sym_tab[i - 1].addr;
 	ret.name = e.sym_tab[i - 1].name;
 	return ret;

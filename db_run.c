@@ -1,5 +1,6 @@
 #include "mini_debugger.h"
 #include <errno.h>
+#include <signal.h>
 
 static void	insert_breakpoint(t_env *e)
 {
@@ -67,6 +68,12 @@ static void	do_child(t_env *e, char **args)
 
 void	db_run(t_env *e, char **args)
 {
+	if (!e->file_name)
+	{
+		printf("No executable file specified.\n\
+Use the \"file\" command.\n");
+		return ;
+	}
 	if (e->is_running)
 	{
 		while(!line_edition_getsubline(g_line, "The program being debugged has been started already.\n\

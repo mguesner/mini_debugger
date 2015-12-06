@@ -8,16 +8,33 @@ void	db_backtrace(t_env *e, char **args)
 		return ;
 	}
 	long long	rip = e->regs.rip;
-	long long	rbp = e->regs.rbp;
+	long long	rsp = e->regs.rbp;
+	if (rip > 0x700000000000)
+		 rsp = e->regs.rsp;
 	int			i = 0;
 	(void) args;
 
-	while (rip < 0x700000000000)
+	while (rsp)
 	{
 		t_sym_info info = get_current_sym(*e, rip);
+		if (!info.addr_off)
+		{
+			printf("lost backtrace.\n");
+			break ;
+		}
 		printf("#%d  0x%.16llx in %s()\n", i, rip, info.name);
-		rip = ptrace(PTRACE_PEEKDATA, e->child, rbp + 8, NULL);
-		rbp = ptrace(PTRACE_PEEKDATA, e->child, rbp, NULL);
+		if (!strcmp("main", info.name))
+			break;
+		if (rip > 0x700000000000)
+		{
+			rip = ptrace(PTRACE_PEEKDATA, e->child, rsp, NULL);
+			rsp = e->regs.rbp;
+		}
+		else
+		{
+			rip = ptrace(PTRACE_PEEKDATA, e->child, rsp + 8, NULL);
+			rsp = ptrace(PTRACE_PEEKDATA, e->child, rsp, NULL);
+		}
 		i++;
 	}
 }

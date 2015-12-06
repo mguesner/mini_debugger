@@ -38,11 +38,14 @@ char *signaux[] =
 
 void		wait_event(t_env *e)
 {
-
 	line_edition_pause(g_line);
+	tcsetpgrp(0, e->child);
 	ptrace(PTRACE_CONT, e->child, 0, WSTOPSIG(e->status) == 5 ? 0 : WSTOPSIG(e->status));
 	if (waitpid(e->child, &(e->status), 0) < 0)
 		perror("waitpid");
+	signal (SIGTTOU, SIG_IGN);
+	tcsetpgrp(0, getpid());
+	signal (SIGTTOU, SIG_DFL);
 	line_edition_cont(g_line);
 	if (WIFSTOPPED(e->status) && WSTOPSIG(e->status) == SIGTRAP)
 	{
