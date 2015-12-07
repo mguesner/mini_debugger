@@ -24,7 +24,7 @@ typedef	struct 					s_line
 
 typedef struct
 {
-	int						func_id;
+	int							func_id;
 	void						(*func)(t_line *);
 }								t_func;
 

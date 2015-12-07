@@ -28,18 +28,27 @@ typedef struct					s_sym
 	char						*name;
 }								t_sym;
 
-typedef enum					e_bp_disp
+typedef enum
 {
 	KEEP,
 	DISPOSE,
 	DELETE,
 }								t_bp_disp;
 
+typedef enum
+{
+	SYMBOL,
+	ADDRESS,
+}								t_b_type;
+
 typedef struct					s_node_break
 {
 	unsigned int				num;
 	unsigned char				opcode;							
 	unsigned long long			addr;
+	t_b_type					type;
+	char						*sym;
+	int							is_pending;
 	int							is_enable;
 	t_bp_disp					disp;
 	int							nb_hit;

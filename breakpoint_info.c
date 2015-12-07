@@ -13,9 +13,19 @@ void	breakpoint_info(t_env *e, char **args)
 	while (curr)
 	{
 		t_sym_info info = get_current_sym(*e, curr->addr);
-		printf("%-8dbreakpoint     %-5s%-4c0x%.16llx <%s+%d>\n"
+		printf("%-8dbreakpoint     %-5s%-4c"
 			, curr->num + 1, curr->disp == KEEP ? "keep" : curr->disp == DISPOSE ? "dis" : "del"
-			, curr->is_enable ? 'y' : 'n', curr->addr, info.name, info.addr_off);
+			, curr->is_enable ? 'y' : 'n');
+		if (!curr->is_pending)
+		{
+			printf("0x%.16llx", curr->addr);
+			if (info.name)
+			printf(" <%s+%d>"
+				, info.name, info.addr_off);
+		}
+		else
+			printf("%-18s %s", "<PENDING>", curr->sym);
+		printf("\n");
 		curr = curr->next;
 	}
 }
