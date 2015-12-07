@@ -32,13 +32,14 @@ static void		db_exit()
 	line_editor_end(g_line);
 }
 
-void			mini_debugger(char **args)
+void			mini_debugger(char **args, char **env)
 {
 	t_env 	e;
 	g_line = line_editor_init();
 	atexit(db_exit);
 
 	init_debugger(&e);
+	e.env = env;
 	if (*args)
 	{
 		e.file_name = strdup(*args);

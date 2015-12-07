@@ -17,7 +17,7 @@ void	db_backtrace(t_env *e, char **args)
 	while (rsp)
 	{
 		t_sym_info info = get_current_sym(*e, rip);
-		if (!info.addr_off)
+		if (!info.name)
 		{
 			printf("lost backtrace.\n");
 			break ;

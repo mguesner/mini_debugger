@@ -67,6 +67,8 @@ typedef struct					s_lst_break
 struct							s_env
 {
 	char						*file_name;
+	char						*exec_name;
+	char						**env;
 	char						**args;
 	int							is_running;
 	int							child;
@@ -112,7 +114,7 @@ void		enable_breakpoint(t_env *e, char **args);
 void		enable_once(t_env *e, char **args);
 void		enable_delete(t_env *e, char **args);
 
-void		mini_debugger(char **args);
+void		mini_debugger(char **args, char **env);
 void		init_debugger(t_env *e);
 void		load_symbol(t_env *e);
 char		**explode(char *str);

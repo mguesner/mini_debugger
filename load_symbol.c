@@ -51,10 +51,71 @@ static int	elf_check(Elf64_Ehdr *hdr)
 	return 1;
 }
 
+static void	*get_file_fd(t_env *e)
+{
+	int		i = 0;
+	char	*path = NULL;
+	int 	fd;
+	struct stat	buf;
+	if ((fd = open(e->file_name, O_RDONLY)) >= 0 && !fstat(fd, &buf) && S_ISREG(buf.st_mode))
+	{
+		if ((unsigned long)buf.st_size < sizeof(Elf64_Ehdr))
+		{
+			printf("%s: not in executable format: File truncated\n", e->file_name);
+			return NULL;
+		}
+		char *pwd = getcwd(NULL, 0);
+		e->exec_name = malloc(strlen(e->file_name) + strlen(pwd) + 2);
+		strcpy(e->exec_name, pwd);
+		strcat(e->exec_name, "/");
+		strcat(e->exec_name, e->file_name);
+		free(pwd);
+		void *tmp = mmap(NULL, buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+		printf("%p\n", tmp);
+		close(fd);
+		printf("%p\n", tmp);
+		return tmp;
+	}
+	while (e->env[i])
+	{
+		if (!strncmp(e->env[i], "PATH=", 5))
+		{
+			path = strdup(e->env[i] + 5);
+			break ;
+		}
+		i++;
+	}
+	char *part = strtok(path, ":");
+	while (part)
+	{
+		printf("%s\n", part);
+		part = strtok(NULL, ":");
+		e->exec_name = malloc(strlen(e->file_name) + strlen(part) + 2);
+		strcpy(e->exec_name, part);
+		strcat(e->exec_name, "/");
+		strcat(e->exec_name, e->file_name);
+		if ((fd = open(e->exec_name, O_RDONLY)) >= 0 && !fstat(fd, &buf) && S_ISREG(buf.st_mode))
+		{
+			void *tmp = mmap(NULL, buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+			free(path);
+			close(fd);
+			return tmp;
+		}
+		free(e->exec_name);
+		e->exec_name = NULL;
+		close(fd);
+	}
+	free(path);
+	printf("%s: Aucun fichier ou dossier de ce type.\n", e->file_name);
+	return NULL;
+}
+
 void	load_symbol(t_env *e)
 {
-	int fd;
-	struct stat buf;
+	void *file_start = get_file_fd(e);
+	if (!file_start)
+		return ;
+	/*struct stat	buf;
 	if ((fd = open(e->file_name, O_RDONLY)) < 0)
 	{
 		printf("%s: Aucun fichier ou dossier de ce type.\n", e->file_name);
@@ -65,8 +126,13 @@ void	load_symbol(t_env *e)
 	{
 		printf("%s: Aucun fichier ou dossier de ce type.\n", e->file_name);
 		return ;
-	}
-	void *file_start = mmap(NULL, buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	}*/
+	// void *file_start = mmap(NULL, buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	// if ((unsigned long)buf.st_size < sizeof(Elf64_Ehdr))
+	// {
+	// 	printf("%s: not in executable format: File truncated\n", e->file_name);
+	// 	return ;
+	// }
 	Elf64_Ehdr *hdr = (Elf64_Ehdr*)file_start;
 	if (!elf_check(hdr))
 	{
@@ -78,17 +144,27 @@ void	load_symbol(t_env *e)
 	char *strtab = file_start + (section_start + hdr->e_shstrndx)->sh_offset;
 	Elf64_Sym *sym ;
 	t_sym *reloc_array;
-	int sym_size;
-	char *sym_str_tbl;
+	int sym_size = 0;
+	char *sym_str_tbl = NULL;
 	unsigned long size;
 	for(int i = 0; i < hdr->e_shnum; i++)
 	{
 		Elf64_Shdr *section = section_start + i;
-		if (section->sh_type == SHT_STRTAB)
+		if (!strcmp(strtab + section->sh_name, ".dynstr"))
 		{
+			printf("new tab\n");
+			write(1, file_start + section->sh_offset, section->sh_size);
+			write(1, "\n", 1);
 			sym_str_tbl = (char *)(file_start + section->sh_offset);
+			unsigned int i = 0;
+			while (i < section->sh_size)
+			{
+				int ret = printf("%s", sym_str_tbl + i);
+				printf(" at %d -> %d\n", i, ret);
+				i += (ret + 1);
+			}
 		}
-		else if (section->sh_type == SHT_SYMTAB)
+		else if (!strcmp(strtab + section->sh_name, ".dynsym"))
 		{
 			// printf("symtab -> %d\n", i);
 			sym = (Elf64_Sym *)(file_start + section->sh_offset);
@@ -123,10 +199,13 @@ void	load_symbol(t_env *e)
 		// }
 	}
 	Elf64_Sym *curr_sym = sym;
+	printf("size = %lu\n", sym_size / sizeof(Elf64_Sym));
 	e->sym_tab = malloc(sym_size / sizeof(Elf64_Sym) * sizeof(t_sym));
 	int i = 0;
+	printf("%s\n", sym_str_tbl + 1);
 	while((void *)curr_sym < ((void *)sym) + sym_size)
 	{
+		// printf("%s at %d\n", sym_str_tbl + curr_sym->st_name, curr_sym->st_name);
 		if (ELF64_ST_TYPE(curr_sym->st_info) == STT_FUNC)
 		{
 			e->sym_tab[i].addr = curr_sym->st_value;
@@ -140,7 +219,7 @@ void	load_symbol(t_env *e)
 					e->sym_tab[i].name = malloc(strlen(reloc_array[idx].name) + 5);
 					strcpy(e->sym_tab[i].name, reloc_array[idx].name);
 					strcat(e->sym_tab[i].name, "@plt");
-				}
+				}		
 			}
 			// printf("#%d\tOffset: %x\tName: %s, Addr: 0x%lx, Bind:%d\n", i, (int)curr_sym - (int)file_start
 			// 	, e->sym_tab[i].name , e->sym_tab[i].addr

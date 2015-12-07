@@ -6,7 +6,9 @@ void	db_file(t_env *e, char **args)
 	if (e->file_name)
 	{
 		free(e->file_name);
+		free(e->exec_name);
 		e->file_name = NULL;
+		e->exec_name = NULL;
 		int i = 0;
 		while (i < e->size_sym_tab)
 		{
@@ -19,9 +21,7 @@ void	db_file(t_env *e, char **args)
 		while(curr)
 		{
 			if (curr->type == SYMBOL)
-			{
 				curr->is_pending = 1;
-			}
 			curr = curr->next;
 		}
 	}

@@ -52,17 +52,11 @@ static void	do_child(t_env *e, char **args)
 	if (setpgid(0, 0) < 0)
 		perror("pgid");
 	raise(SIGSTOP);
-	char *pwd = getcwd(NULL, 0);
-	char *name = malloc(strlen(pwd) + strlen(e->file_name) + 2);
-	strcpy(name, pwd);
-	strcat(name, "/");
-	strcat(name, e->file_name);
 	free(args[0]);
-	free(pwd);
-	args[0] = name;
-	printf("Starting program: %s\n\n", name);
-	execvp(name, args);
-	perror(name);
+	args[0] = e->exec_name;
+	printf("Starting program: %s\n\n", e->exec_name);
+	execvp(e->exec_name, args);
+	perror(e->exec_name);
     _exit(126);
 }
 

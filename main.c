@@ -34,9 +34,10 @@ const t_command commands_enable[] = {
 		{"delete", enable_delete}
 	};
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
 	(void) argc;
-	mini_debugger(argv + 1);
+	(void) env;
+	mini_debugger(argv + 1, env);
 	return (0);
 }

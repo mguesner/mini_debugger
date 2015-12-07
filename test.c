@@ -33,8 +33,15 @@ void prout()
 }
 
 
-void main()
+void main(int ac, char **av, char **env)
 {
+  int i = 0;
+  while (env[i])
+  {
+    printf("%s\n", env[i]);
+    i++;
+  }
+  printf("%d env var\n", i);
 	prout();
 }
 
