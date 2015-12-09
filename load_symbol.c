@@ -91,6 +91,7 @@ static void	*get_file_fd(t_env *e)
 		printf("%s\n", part);
 		part = strtok(NULL, ":");
 		e->exec_name = malloc(strlen(e->file_name) + strlen(part) + 2);
+		printf("%s\n", e->exec_name);
 		strcpy(e->exec_name, part);
 		strcat(e->exec_name, "/");
 		strcat(e->exec_name, e->file_name);
