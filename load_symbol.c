@@ -88,10 +88,10 @@ static void	*get_file_fd(t_env *e)
 	char *part = strtok(path, ":");
 	while (part)
 	{
-		printf("%s\n", part);
+		// printf("%s\n", part);
 		part = strtok(NULL, ":");
 		e->exec_name = malloc(strlen(e->file_name) + strlen(part) + 2);
-		printf("%s\n", e->exec_name);
+		// printf("%s\n", e->exec_name);
 		strcpy(e->exec_name, part);
 		strcat(e->exec_name, "/");
 		strcat(e->exec_name, e->file_name);
@@ -153,17 +153,17 @@ void	load_symbol(t_env *e)
 		Elf64_Shdr *section = section_start + i;
 		if (!strcmp(strtab + section->sh_name, ".dynstr"))
 		{
-			printf("new tab\n");
-			write(1, file_start + section->sh_offset, section->sh_size);
-			write(1, "\n", 1);
+			// printf("new tab\n");
+			// write(1, file_start + section->sh_offset, section->sh_size);
+			// write(1, "\n", 1);
 			sym_str_tbl = (char *)(file_start + section->sh_offset);
-			unsigned int i = 0;
-			while (i < section->sh_size)
-			{
-				int ret = printf("%s", sym_str_tbl + i);
-				printf(" at %d -> %d\n", i, ret);
-				i += (ret + 1);
-			}
+			// unsigned int i = 0;
+			// while (i < section->sh_size)
+			// {
+			// 	int ret = printf("%s", sym_str_tbl + i);
+			// 	printf(" at %d -> %d\n", i, ret);
+			// 	i += (ret + 1);
+			// }
 		}
 		else if (!strcmp(strtab + section->sh_name, ".dynsym"))
 		{
@@ -200,10 +200,10 @@ void	load_symbol(t_env *e)
 		// }
 	}
 	Elf64_Sym *curr_sym = sym;
-	printf("size = %lu\n", sym_size / sizeof(Elf64_Sym));
+	// printf("size = %lu\n", sym_size / sizeof(Elf64_Sym));
 	e->sym_tab = malloc(sym_size / sizeof(Elf64_Sym) * sizeof(t_sym));
 	int i = 0;
-	printf("%s\n", sym_str_tbl + 1);
+	// printf("%s\n", sym_str_tbl + 1);
 	while((void *)curr_sym < ((void *)sym) + sym_size)
 	{
 		// printf("%s at %d\n", sym_str_tbl + curr_sym->st_name, curr_sym->st_name);

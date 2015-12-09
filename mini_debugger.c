@@ -37,7 +37,7 @@ void			mini_debugger(char **args, char **env)
 	t_env 	e;
 	g_line = line_editor_init();
 	atexit(db_exit);
-
+	set_signal();
 	init_debugger(&e);
 	e.env = env;
 	if (*args)

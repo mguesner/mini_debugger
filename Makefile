@@ -24,7 +24,8 @@ OBJ = main.o \
 	  enable_count.o \
 	  enable_breakpoint.o \
 	  enable_once.o \
-	  enable_delete.o
+	  enable_delete.o \
+	  set_signal.c
 
 LIB = line_edition/line_edition.a
 

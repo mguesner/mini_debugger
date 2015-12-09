@@ -121,5 +121,6 @@ char		**explode(char *str);
 void		wait_event(t_env *e);
 t_sym_info	get_current_sym(t_env e, long addr);
 void		delete_node(t_lst_break *lst, t_node_break *node);
+void		set_signal();
 
 #endif
